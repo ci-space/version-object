@@ -103,3 +103,51 @@ func TestObject_UpPatch(t *testing.T) {
 		})
 	}
 }
+
+func TestParseVersion(t *testing.T) {
+	cases := []struct {
+		Title    string
+		Input    string
+		Expected *versionobject.Version
+	}{
+		{
+			Title: "v1.2.3",
+			Input: "v1.2.3",
+			Expected: &versionobject.Version{
+				Major:  1,
+				Minor:  2,
+				Patch:  3,
+				Prefix: "v",
+			},
+		},
+		{
+			Title: "1.2.3",
+			Input: "1.2.3",
+			Expected: &versionobject.Version{
+				Major:     1,
+				Minor:     2,
+				Patch:     3,
+				Namespace: "",
+			},
+		},
+		{
+			Title: "pkg/github/v0.1.0",
+			Input: "pkg/github/v0.1.0",
+			Expected: &versionobject.Version{
+				Major:     0,
+				Minor:     1,
+				Patch:     0,
+				Prefix:    "v",
+				Namespace: "pkg/github",
+			},
+		},
+	}
+
+	for _, c := range cases {
+		t.Run(c.Title, func(t *testing.T) {
+			got, err := versionobject.ParseVersion(c.Input)
+			assert.NoError(t, err)
+			assert.Equal(t, c.Expected, got)
+		})
+	}
+}
